@@ -512,6 +512,45 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .r-row .tag{text-shadow:none;opacity:1;color:#7a3d00}
 .r-row .tag.lock{background:none;padding:0;margin-right:2px}
 .r-row .tag.lock .ui-ico{width:34px;height:40px;filter:drop-shadow(0 2px 1px rgba(90,40,0,.3))}
+
+/* ---------- v15: honey wallet and bug upgrades ---------- */
+.home-top{padding-left:10px;padding-right:10px;gap:5px}
+.avatar{width:56px;height:56px;flex:none}
+.avatar::before,.avatar canvas{left:5px;top:5px;width:46px;height:46px}
+.home-top .pill{height:44px;padding:0 10px 0 44px;font-size:18px}
+.home-top .pill::before{--s:.278}
+.home-top .pill .ui-ico{left:4px;width:33px;height:33px}
+#menuSound{position:absolute;z-index:2;left:12px;top:calc(env(safe-area-inset-top) + 80px);width:44px;height:44px}
+.nav button{position:relative}
+.nav-dot{position:absolute;top:2px;right:calc(50% - 30px);min-width:20px;height:20px;border-radius:10px;background:linear-gradient(#ff5a4a,#c8102e);
+  color:#fff;font:400 13px/20px var(--font-display);-webkit-text-stroke:0;border:2px solid #ffd24a;box-shadow:0 2px 0 rgba(0,0,0,.3);animation:breathe 1.4s ease-in-out infinite}
+.nav-dot[hidden]{display:none}
+.bugs-honey{display:inline-flex;height:44px;padding:0 18px 0 48px;margin:2px auto 0;font-size:20px;position:relative}
+.bugs-honey::before{--s:.278}
+.bugs-honey .ui-ico,.rewards .pill .ui-ico{position:absolute;left:4px;top:50%;width:34px;height:34px;transform:translateY(-52%)}
+.legend div.sk{position:relative;padding:12px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.legend span{display:none}
+.legend em{min-height:2.3em;color:#7a2a14}
+.legend .lv{position:absolute;top:6px;left:6px;font:400 12px/1 var(--font-display);font-style:normal;color:#fff;background:linear-gradient(#ee3b3b,#b5121f);
+  border:2px solid #ffd24a;border-radius:9px;padding:3px 6px 2px;-webkit-text-stroke:.6px #5a0a12;paint-order:stroke fill}
+.legend .up{margin-top:6px;display:inline-flex;align-items:center;gap:3px;padding:6px 10px 9px 6px;font:400 16px/1 var(--font-display);color:#fff;
+  -webkit-text-stroke:1.2px #1f4d0a;paint-order:stroke fill;cursor:pointer}
+.legend .up::before{--s:.15}
+.legend .up .ui-ico{width:22px;height:22px}
+.legend .up.poor::before{filter:grayscale(.85) brightness(1.05)}
+.legend .up.poor{-webkit-text-stroke-color:#555}
+.legend .up.max::before{border-image-source:var(--k_b_berry)}
+.legend .up.max{-webkit-text-stroke-color:#5a0a12;padding:7px 14px 10px}
+.legend div.lvup{animation:lvup .55s cubic-bezier(.2,1.6,.4,1)}
+.legend div.lvup .lv{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes lvup{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+.legend div.nope{animation:nope .35s}
+@keyframes nope{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.rewards{gap:6px}
+.rewards .pill{padding:0 12px 0 44px;font-size:19px;height:44px}
+.legend .up span{display:inline;font-size:16px;margin:0;opacity:1;line-height:1}
+.legend .up{min-width:76px;justify-content:center}
+.bugs-honey{color:#fff;font-family:var(--font-display);font-weight:400;-webkit-text-stroke:1.5px #5a0a12;paint-order:stroke fill}
 /* splash with the logo */
 #splash{z-index:40;justify-content:center;gap:4vh;background:#2c4a22;isolation:isolate;cursor:pointer}
 #splash::before{content:"";position:absolute;inset:-30px;z-index:-1;background:var(--home-bg) center 62%/cover;filter:blur(3px) brightness(.8)}
@@ -551,8 +590,9 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
     <div class="avatar"><canvas id="avatarCv" width="132" height="132" aria-hidden="true"></canvas></div>
     <div class="pill sk sk-pill" title="Trophies"><span class="ico-trophy"></span><span id="trophies">0</span></div>
     <div class="pill sk sk-pill" title="Gems"><span class="ico-gem"></span><span id="gems">0</span></div>
-    <button class="icon-btn sk sk-gold sk-btn" id="menuSound" aria-label="Sound"></button>
+    <div class="pill sk sk-pill" title="Honey"><span class="ico-honey"></span><span id="honey">0</span></div>
   </div>
+  <button class="icon-btn sk sk-gold sk-btn" id="menuSound" aria-label="Sound"></button>
   <div class="spacer"></div>
   <button class="level-btn sk sk-berry sk-btn" id="playBtn"><span class="lb-crest" aria-hidden="true"></span><span class="lb-title" id="playTitle">Level 1</span><span class="lb-sub" id="playSub">The Garden</span></button>
 </section>
@@ -563,7 +603,8 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 </section>
 
 <section id="bugs" class="screen sheet paper" hidden>
-  <div class="sheet-head"><h2>Your bugs</h2><p>Each home raises its own bug. Stronger bugs take longer.</p></div>
+  <div class="sheet-head"><h2>Your bugs</h2><p>Win battles to earn honey. Spend it to make a bug stronger: +5% health and bite per level.</p>
+    <div class="pill sk sk-pill bugs-honey" title="Honey"><span class="ico-honey"></span><span id="bugsHoney">0</span></div></div>
   <div class="legend" id="legend">
     <div class="sk sk-card"><canvas data-icon="anthill" width="174" height="150"></canvas><b>Anthill</b><span>Ants bite. Quick to raise</span><em data-unit="ant"></em></div>
     <div class="sk sk-card"><canvas data-icon="termite" width="174" height="150"></canvas><b>Termite tower</b><span>Termites: tough biters</span><em data-unit="termite"></em></div>
@@ -581,7 +622,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 </section>
 
 <nav id="nav" class="nav" hidden>
-  <button data-tab="bugs" aria-label="Bugs"><i id="navBugs"></i><span>Bugs</span></button>
+  <button data-tab="bugs" aria-label="Bugs"><i id="navBugs"></i><span>Bugs</span><b class="nav-dot" id="navBugsDot" hidden>!</b></button>
   <button data-tab="road" aria-label="Trophy road"><i id="navRoad"></i><span>Road</span></button>
   <button data-tab="home" class="home-tab" aria-label="Home"><i id="navHome"></i><span>Home</span></button>
   <button data-tab="journey" aria-label="World map"><i id="navMap"></i><span>Map</span></button>
@@ -607,6 +648,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
     <div class="rewards">
       <div class="pill sk sk-pill"><span class="ico-trophy"></span><span id="resTrophy">+0</span></div>
       <div class="pill sk sk-pill"><span class="ico-gem"></span><span id="resGems">+0</span></div>
+      <div class="pill sk sk-pill"><span class="ico-honey"></span><span id="resHoney">+0</span></div>
     </div>
     <div class="btn-row">
       <button class="btn plain sk sk-blue sk-btn" id="resMenu">Map</button>
@@ -653,6 +695,9 @@ const MELEE_REACH = 15, LEASH = 125, SALLY_RATE = 5, DEFEND_RADIUS = 90, SALLY_F
 // body radius of each bug: two bugs on the same layer never sit closer than the sum of theirs
 const BODY = { ant: 5, termite: 5.5, beetle: 7.5, mosquito: 8, wasp: 8, bee: 7 };
 const MAX_UNITS = 260, SIDE_CAP = 110, CHARGE_RADIUS = 45;
+// Bug levels (honey upgrades): every level above 1 adds 5% health and 5% damage. Enemies use the level of the land.
+const LEVEL_STEP = 0.05, MAX_BUG_LEVEL = 10;
+const upgradeCost = lvl => Math.round(100 * Math.pow(1.6, lvl - 1) / 10) * 10;   // price to go from lvl to lvl+1
 const AIR_ALT = 26, AIR_GAP = 0.32, DECAY_PERIOD = 1.4, ARRIVE_DIST = 14;
 const STRIKE = { charge: 24, flight: 1.8, dmg: 0.5, blast: 62, unitDmg: 6 };              // hornet strike from a wasp nest
 const GUARD  = { charge: 18, life: 16, range: 115, reload: 0.45, speed: 230, alt: 36, max: 2 }; // guard bee from a beehive
@@ -1085,7 +1130,9 @@ function buildPaths(regions, walk, bridge) {
 // ===================== MATCH =====================
 const unitKind = r => TYPES[r.type].unit;
 const unitOf = r => UNITS[unitKind(r)];
-const hpOf = r => unitOf(r).hp;
+// health of one bug in a patch, at its owner's level
+const lvMul = (S, owner, kind) => { const t = S.lv && S.lv[owner]; return 1 + LEVEL_STEP * (((t && t[kind]) || 1) - 1); };
+const hpOf = (S, r) => unitOf(r).hp * lvMul(S, r.owner, unitKind(r));
 function hostile(S, a, b) { return a !== b && !(S.team[a] && S.team[a] === S.team[b]); }
 function canHit(kind, target) { if (!target.air) return true; const g = UNITS[kind].gun; return !!(g && g.air); }
 function dpsOf(kind) { const U = UNITS[kind]; return U.melee ? U.melee.dmg / U.melee.cd : U.gun.dmg * U.gun.burst / U.gun.cd; }
@@ -1093,7 +1140,7 @@ function powerOf(kind) { return UNITS[kind].hp * dpsOf(kind); }
 function angLerp(a, b, t) { let d = b - a; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; return a + d * t; }
 function walkableAt(S, x, y) { const i = Math.floor(x / CELL), j = Math.floor(y / CELL); return i >= 0 && j >= 0 && i < GW && j < GH && S.map.walk[j * GW + i] === 1; }
 
-function newGame(L) {
+function newGame(L, opts) {
   const map = genMap(L);
   const S = {
     L, map, regions: map.regions.map(r => Object.assign({}, r, { out: 0, sallyT: 0 })),
@@ -1101,6 +1148,7 @@ function newGame(L) {
     time: 0, over: false, result: null, endTime: 0, playerLost: false, playerSent: false,
     rnd: mulberry32(L.seed * 13 + 5), ai: {}, nextUid: 1, grid: new Map(),
     factions: ['tide', ...L.enemies], team: Object.assign({}, L.teams || {}), charge: {},
+    lv: (opts && opts.lv) || {},
   };
   for (const f of S.factions) S.charge[f] = { strike: 0, guard: 0 };
   for (const f of L.enemies) S.ai[f] = { t: AI[L.ai].startDelay + (L.aiDelay || 0) + S.rnd(), P: AI[L.ai] };
@@ -1131,7 +1179,8 @@ function sendTroops(S, from, to, owner) {
 
 function makeUnit(S, owner, kind, x, y) {
   const U = UNITS[kind];
-  return { id: S.nextUid++, owner, kind, x, y, ang: 0, hp: U.hp, maxHp: U.hp, speed: U.speed, air: !!U.air,
+  const hp = U.hp * lvMul(S, owner, kind);
+  return { id: S.nextUid++, owner, kind, x, y, ang: 0, hp, maxHp: hp, speed: U.speed, air: !!U.air,
     cd: .3 + S.rnd() * .5, burst: 0, bcd: 0, foe: null, dead: false, ph: S.rnd() * 4, lunge: 0, fire: 0, mode: 'march' };
 }
 function spawnMarcher(S, st, lane) {
@@ -1160,15 +1209,15 @@ function hurt(S, u, d) {
   if (u.hp <= 0) { u.dead = true; S.events.push({ type: 'die', x: u.x, y: u.y - (u.air ? AIR_ALT : 3), owner: u.owner, kind: u.kind }); }
 }
 // Reinforcements keep their strength: three ants become one ten-hp beetle's worth, and the other way round.
-function reinforce(r, hp) {
-  r.pool += hp / hpOf(r);
+function reinforce(S, r, hp) {
+  r.pool += hp / hpOf(S, r);
   while (r.pool >= 1 - 1e-9) { r.pool -= 1; r.troops++; }
   r.bump = Math.max(r.bump, .5);
 }
 function capture(S, r, u) {
   const prev = r.owner;
   r.owner = u.owner; r.troops = 0; r.pool = 0; r.dmg = 0; r.acc = 0; r.decay = 0; r.flash = 1; r.bump = 1; r.sallyT = 0;
-  reinforce(r, u.hp);
+  reinforce(S, r, u.hp);
   if (prev === 'tide') S.playerLost = true;
   S.events.push({ type: 'capture', i: r.i, prev, owner: u.owner });
 }
@@ -1327,14 +1376,14 @@ function act(S, u, dt) {
   const r = S.regions[u.to], dd = Math.hypot(u.x - r.x, u.y - r.y), near = 22 + (u.air ? 8 * Math.sqrt(r.crowdA || 0) : 6.5 * Math.sqrt(r.crowd || 0));
   if (dd > (u.atDoor ? near + 14 : near)) { if (!step(S, u, r.x, r.y + 4, dt) && dd < near + 14) u.atDoor = true; return; }
   u.atDoor = true;
-  if (!hostile(S, u.owner, r.owner)) { reinforce(r, u.hp); u.dead = true; return; }
+  if (!hostile(S, u.owner, r.owner)) { reinforce(S, r, u.hp); u.dead = true; return; }
   // You only have to beat the defenders your bugs can fight: ants cannot hold off flyers, flyers can't be stopped by ants.
   if (r.troops <= 0 && (canHit(u.kind, { air: true }) ? r.out : r.outG) === 0) { capture(S, r, u); u.dead = true; return; }
   if (u.cd <= 0) {
-    const U = UNITS[u.kind], dmg = U.melee ? U.melee.dmg : U.gun.dmg * U.gun.burst;
+    const U = UNITS[u.kind], dmg = (U.melee ? U.melee.dmg : U.gun.dmg * U.gun.burst) * lvMul(S, u.owner, u.kind);
     u.cd = U.melee ? U.melee.cd : U.gun.cd; u.lunge = 1; u.fire = U.gun ? 1 : 0;
     r.dmg += dmg; r.bump = Math.max(r.bump, .6); r.siege = SIEGE_HOLD;
-    const hp = hpOf(r);
+    const hp = hpOf(S, r);
     while (r.dmg >= hp && r.troops > 0) { r.dmg -= hp; r.troops--; }
     if (r.troops === 0) r.dmg = 0;
     S.events.push({ type: 'gate', x: r.x, y: r.y - 10, kind: u.kind });
@@ -1443,7 +1492,7 @@ function strike(S, u, v, dt) {
   turnTo(u, Math.atan2(v.y - u.y, v.x - u.x), dt);
   const U = UNITS[u.kind];
   if (U.melee) {
-    if (u.cd <= 0) { u.cd = U.melee.cd; u.lunge = 1; hurt(S, v, U.melee.dmg); S.events.push({ type: 'bite', x: (u.x + v.x) / 2, y: (u.y + v.y) / 2 - 4 }); }
+    if (u.cd <= 0) { u.cd = U.melee.cd; u.lunge = 1; hurt(S, v, U.melee.dmg * lvMul(S, u.owner, u.kind)); S.events.push({ type: 'bite', x: (u.x + v.x) / 2, y: (u.y + v.y) / 2 - 4 }); }
     return;
   }
   const G = U.gun;
@@ -1452,7 +1501,7 @@ function strike(S, u, v, dt) {
 }
 function fire(S, u, v, G) {
   u.fire = 1;
-  S.projs.push({ kind: G.proj, owner: u.owner, x0: u.x, y0: u.y - (u.air ? AIR_ALT : 9), target: v, t: 0, dur: G.flight, dmg: G.dmg });
+  S.projs.push({ kind: G.proj, owner: u.owner, x0: u.x, y0: u.y - (u.air ? AIR_ALT : 9), target: v, t: 0, dur: G.flight, dmg: G.dmg * lvMul(S, u.owner, u.kind) });
   S.events.push({ type: 'shot', proj: G.proj, owner: u.owner });
 }
 
@@ -1531,7 +1580,7 @@ function factionAlive(S, f) {
 }
 function strengths(S) {
   const out = {};
-  for (const r of S.regions) if (r.owner !== 'neutral') out[r.owner] = (out[r.owner] || 0) + r.troops * hpOf(r);
+  for (const r of S.regions) if (r.owner !== 'neutral') out[r.owner] = (out[r.owner] || 0) + r.troops * hpOf(S, r);
   for (const u of S.units) if (!u.dead && u.owner !== 'neutral') out[u.owner] = (out[u.owner] || 0) + u.hp;
   for (const s of S.streams) out[s.owner] = (out[s.owner] || 0) + s.left * UNITS[s.kind].hp;
   return out;
@@ -2095,6 +2144,17 @@ function loadProgress(seed) {
   if (seed && seed.progress) Object.assign(progress, seed.progress);
   while (progress.stars.length < LEVELS.length) progress.stars.push(0);
   progress.tips = progress.tips || {};
+  if (progress.honey == null) progress.honey = 100;
+  progress.lv = progress.lv || {};
+}
+const bugLv = kind => progress.lv[kind] || 1;
+const fmtN = n => n >= 10000 ? Math.floor(n / 1000) + 'k' : String(n);
+const BUG_KINDS = ['ant', 'termite', 'beetle', 'mosquito', 'wasp', 'bee'];
+const canUpgradeAny = () => BUG_KINDS.some(k => bugLv(k) < MAX_BUG_LEVEL && progress.honey >= upgradeCost(bugLv(k)));
+function syncWallet() {
+  $('trophies').textContent = fmtN(progress.trophies); $('gems').textContent = fmtN(progress.gems); $('honey').textContent = fmtN(progress.honey);
+  $('bugsHoney').textContent = fmtN(progress.honey);
+  $('navBugsDot').hidden = !canUpgradeAny();
 }
 function saveProgress() { try { localStorage.setItem('bugbrawl.v2', JSON.stringify(progress)); } catch (e) {} }
 
@@ -2119,6 +2179,7 @@ try { document.documentElement.style.setProperty('--home-bg', `url(${HOME_BG})`)
 $('pauseBtn').innerHTML = ICON.pause;
 $('logoImg').src = UI_ART.logo;
 document.querySelectorAll('.ico-trophy').forEach(e => e.outerHTML = ICON.trophy);
+document.querySelectorAll('.ico-honey').forEach(e => e.outerHTML = UIMG('i_honey'));
 document.querySelectorAll('.ico-gem').forEach(e => e.outerHTML = ICON.gem);
 // special attack buttons show the painted wasp and bee, with the seconds left on top while charging
 $('abStrike').querySelector('.face').innerHTML = `<img alt="" src="${ART_DATA.u.wasp}"><span class="cd"></span>`;
@@ -3094,7 +3155,11 @@ cv.addEventListener('pointercancel', e => endPointer(e, true));
 function show(id, on) { $(id).hidden = !on; }
 function startLevel(k) {
   Snd.init();
-  levelIdx = k; S = newGame(LEVELS[k]); fx = []; parts = []; drag = null; tapSel = null; zoomAnim = null; resultTimer = 0; shake = 0;
+  levelIdx = k;
+  const landLv = 1 + Math.max(0, ROAD.findIndex((r, i) => progress.trophies < (ROAD[i + 1] ? ROAD[i + 1].t : Infinity)));
+  const lv = { tide: Object.assign({}, progress.lv) };
+  for (const f of LEVELS[k].enemies) lv[f] = Object.fromEntries(BUG_KINDS.map(b => [b, landLv]));
+  S = newGame(LEVELS[k], { lv }); fx = []; parts = []; drag = null; tapSel = null; zoomAnim = null; resultTimer = 0; shake = 0;
   mode = 'play'; paused = false; setAim(null);
   cam.z = 1; cam.px = cam.py = 0; invalidate(); camMoved();
   show('menu', false); show('result', false); show('pause', false); show('hud', true);
@@ -3142,7 +3207,7 @@ function toMenu() {
   renderMenu(); setTab('home');
 }
 function renderMenu() {
-  $('trophies').textContent = progress.trophies; $('gems').textContent = progress.gems;
+  syncWallet();
   $('playTitle').textContent = 'Level ' + LEVELS[selLevel].n;
   $('playSub').innerHTML = `<span>${ROAD.at(0).name}</span><span class="stars-mini">${[0, 1, 2].map(s => ICON.star(s < progress.stars[selLevel])).join('')}</span>`;
   $('playBtn').setAttribute('aria-label', `Play level ${LEVELS[selLevel].n}`);
@@ -3218,11 +3283,29 @@ function renderRoad() {
   });
 }
 function renderBugs() {
-  const WEAPON = { bullet: 'machine gun', spear: 'throws spears', stinger: 'throws stingers' };
+  const WEAPON = { bullet: 'machine gun', spear: 'spears', stinger: 'stingers' };
+  const num = v => (Math.round(v * 10) / 10).toString();
   document.querySelectorAll('#legend em[data-unit]').forEach(e => {
-    const U = UNITS[e.dataset.unit], T = Object.values(TYPES).find(t => t.unit === e.dataset.unit);
-    e.textContent = `HP ${U.hp} \u00b7 ${U.melee ? 'bites' : WEAPON[U.gun.proj]}${U.air ? ' \u00b7 flies' : ''} \u00b7 one per ${T.period}s`;
+    const kind = e.dataset.unit, U = UNITS[kind], lv = bugLv(kind), m = 1 + LEVEL_STEP * (lv - 1), card = e.parentElement;
+    e.textContent = `HP ${num(U.hp * m)} · ${U.melee ? 'bites' : WEAPON[U.gun.proj]}${U.air ? ' · flies' : ''}`;
+    let badge = card.querySelector('.lv'); if (!badge) { badge = document.createElement('i'); badge.className = 'lv'; card.appendChild(badge); }
+    badge.textContent = 'Lv ' + lv;
+    let btn = card.querySelector('.up'); if (!btn) { btn = document.createElement('button'); btn.className = 'up sk sk-green sk-btn'; card.appendChild(btn); btn.onclick = () => upgrade(kind, card); }
+    const max = lv >= MAX_BUG_LEVEL, cost = upgradeCost(lv);
+    btn.classList.toggle('max', max); btn.classList.toggle('poor', !max && progress.honey < cost);
+    btn.innerHTML = max ? 'MAX' : `${UIMG('i_honey')}<span>${cost}</span>`;
+    btn.setAttribute('aria-label', max ? `${kind} is at the top level` : `Upgrade ${kind} to level ${lv + 1} for ${cost} honey`);
   });
+  syncWallet();
+}
+function upgrade(kind, card) {
+  Snd.init();
+  const lv = bugLv(kind); if (lv >= MAX_BUG_LEVEL) return;
+  const cost = upgradeCost(lv);
+  if (progress.honey < cost) { Snd.play('tap'); toast(`You need <b>${cost - progress.honey} more honey</b>. Win battles to earn it.`, 2.2); card.classList.remove('nope'); void card.offsetWidth; card.classList.add('nope'); return; }
+  progress.honey -= cost; progress.lv[kind] = lv + 1; saveProgress();
+  Snd.play('take'); card.classList.remove('lvup'); void card.offsetWidth; card.classList.add('lvup');
+  renderBugs();
 }
 function syncSound() {
   for (const id of ['soundBtn', 'menuSound']) { $(id).innerHTML = progress.sound ? ICON.soundOn : ICON.soundOff; $(id).setAttribute('aria-label', progress.sound ? 'Sound on' : 'Sound off'); }
@@ -3232,14 +3315,15 @@ function toggleSound() { progress.sound = !progress.sound; saveProgress(); syncS
 function showResult() {
   const win = S.result === 'win', st = starsFor(S), k = levelIdx;
   const prev = progress.stars[k], got = st.filter(Boolean).length;
-  let gems = 0, trophies = 0;
+  let gems = 0, trophies = 0, honey = win ? 25 : 8;
+  if (win && prev === 0) honey += 50 + 10 * S.L.n;   // first time you clear this level
   if (win) {
     for (let s = prev; s < got; s++) gems += 10;
     gems += 5; trophies = 18 + 6 * S.L.n;
     progress.stars[k] = Math.max(prev, got);
     progress.unlocked = Math.max(progress.unlocked, Math.min(LEVELS.length, k + 2));
   } else trophies = -Math.min(progress.trophies - roadFloor(progress.trophies), 8);   // never below the land you reached
-  progress.gems += gems; progress.trophies += trophies; saveProgress();
+  progress.gems += gems; progress.trophies += trophies; progress.honey += honey; saveProgress();
   const t = $('resTitle'); t.textContent = win ? 'VICTORY' : 'DEFEAT'; t.className = 'ribbon sk ' + (win ? 'sk-rib-green' : 'lose sk-rib-red');
   $('resStars').innerHTML = st.map(on => ICON.star(on)).join('');
   [...$('resStars').children].forEach((s, i) => s.style.animationDelay = (0.25 + i * .22) + 's');
@@ -3247,6 +3331,7 @@ function showResult() {
   $('resCriteria').innerHTML = items.map(([txt, note], i) => `<li class="${st[i] ? 'ok' : ''}"><i></i><span>${txt}</span><em>${note}</em></li>`).join('');
   $('resTrophy').textContent = (trophies >= 0 ? '+' : '') + trophies;
   $('resGems').textContent = '+' + gems;
+  $('resHoney').textContent = '+' + honey;
   const next = $('resNext');
   if (win && k + 1 < LEVELS.length) { next.textContent = 'Next level'; next.onclick = () => startLevel(k + 1); }
   else { next.textContent = win ? 'Play again' : 'Try again'; next.onclick = () => startLevel(k); }
