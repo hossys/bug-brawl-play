@@ -2565,7 +2565,7 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let DPR = 1, VW = 0, VH = 0, SC = 1, OX = 0, OY = 0, TOP = 0, BOTTOM = 0, mapDirty = true;
 let mode = 'menu', paused = false, S = null, levelIdx = 0, selLevel = 0;
 let drag = null, tapSel = null, aim = null, fx = [], parts = [], resultTimer = 0, lastHud = 0, shake = 0;
-const BUILD = 'v23.2';   // shown in Settings
+const BUILD = 'v23.3';   // shown in Settings
 const cam = { z: 1, px: 0, py: 0 };
 let camMovedAt = 0;
 const FONT = '"Titan One","Arial Rounded MT Bold","Trebuchet MS",sans-serif';
@@ -3724,24 +3724,33 @@ function stepZoom() {}
 // ---------- input: drag or tap to send ----------
 const pointers = new Map();
 let pinch = null, lastTap = { t: 0, x: 0, y: 0 };
-function homeAt(w) {
-  let best = null, bd = 46 * 46;
-  for (const r of S.regions) { const dx = r.x - w.x, dy = (r.y - 14) - w.y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = r.i; } }
-  return best;
-}
+function homeAt(w) { return homeHit(w, 46); }
 // Bugs are only ever sent from colony to colony. Letting go anywhere else simply cancels.
 function orderTo(sources, w) {
   const to = regionAt(w);
-  if (to == null) return 0;
+  if (to == null) { Stats.log('drag_miss', { why: 'no_target', stage: S.L.n, t: Math.round(S.time) }); return 0; }
+  const B = S.regions[to], had = sources.map(i => S.regions[i].troops);
   let sent = 0;
   for (const i of sources) if (i !== to) sent += sendTroops(S, i, to, 'tide');
   if (sent && tut) tutOnSend();
+  if (sent) Stats.log('send', { n: sent, from: sources.length, had: had.reduce((a, b) => a + b, 0), to: B.owner === 'tide' ? 'own' : B.owner === 'neutral' ? 'neutral' : 'enemy', type: B.type, defenders: B.troops, stage: S.L.n, t: Math.round(S.time) });
+  else Stats.log('drag_miss', { why: sources.length === 1 && sources[0] === to ? 'same_colony' : 'empty', had: had.join('+'), stage: S.L.n, t: Math.round(S.time) });
   return sent;
+}
+// a drag that sent nothing: why (started on ground that isn't yours, ability aiming, ...), to find controls that confuse
+function dragMiss(why, d, r) {
+  const o = d.r0 != null ? S.regions[d.r0] : null;
+  Stats.log('drag_miss', { why, start: o ? (o.owner === 'tide' ? 'own' : o.owner === 'neutral' ? 'neutral' : 'enemy') : 'water', end: r != null ? S.regions[r].owner : 'water', troops: o ? o.troops : 0, stage: S.L.n, t: Math.round(S.time) });
+}
+// A finger on a home or on its number badge picks that colony, even where the badge pokes over a neighbour's ground.
+function homeHit(w, rad) {
+  let best = null, bd = rad * rad;
+  for (const r of S.regions) for (const [cx, cy] of [[r.x, r.y - 14], [r.x + 27, r.y + 12]]) { const dx = cx - w.x, dy = cy - w.y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = r.i; } }
+  return best;
 }
 function regionAt(w) {
   const i = Math.floor(w.x / CELL), j = Math.floor(w.y / CELL);
-  let best = null, bd = 44 * 44;
-  for (const r of S.regions) { const dx = r.x - w.x, dy = (r.y - 14) - w.y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = r.i; } }
+  const best = homeHit(w, 44);
   if (best != null) return best;
   if (i >= 0 && j >= 0 && i < GW && j < GH) { const id = S.map.id[j * GW + i]; if (id >= 0) return id; }
   return null;
@@ -3759,7 +3768,7 @@ cv.addEventListener('pointerdown', e => {
   if (pointers.size === 2) { drag = null; tapSel = null; pinch = { ...pinchState(), done: false }; return; }
   if (pointers.size > 2) return;
   const w = toWorld(e), r = regionAt(w);
-  drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, x: w.x, y: w.y, moved: false, sources: [], hover: r, pan: false, cpx: cam.px, cpy: cam.py };
+  drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, x: w.x, y: w.y, moved: false, sources: [], hover: r, r0: r, pan: false, cpx: cam.px, cpy: cam.py };
   const ownHere = !aim && r != null && S.regions[r].owner === 'tide';
   if (ownHere && (cam.z <= 1.01 || homeAt(w) === r)) drag.sources.push(r);   // zoomed in, own ground away from the home pans
   else if (cam.z > 1.01) drag.pan = true;
@@ -3787,6 +3796,7 @@ function endPointer(e, cancel) {
   if (d.pan && d.moved) return;
   const w = toWorld(e), r = regionAt(w);
   if (aim) {
+    if (d.moved) dragMiss('aiming', d, r);
     if (d.moved || r == null) return;
     const target = S.regions[r];
     if (!aimValid(target)) { toast(aim === 'strike' ? 'Pick a patch that is not yours or an ally’s.' : 'Pick one of your own patches.', 1.8); return; }
@@ -3794,7 +3804,7 @@ function endPointer(e, cancel) {
     if (ok) { Stats.log('ability_used', { kind: aim, stage: S.L.n, t: Math.round(S.time) }); handleEvents(); setAim(null); updateHud(); }
     return;
   }
-  if (d.moved) { if (d.sources.length) orderTo(d.sources, w); return; }
+  if (d.moved) { if (d.sources.length) orderTo(d.sources, w); else dragMiss('not_yours', d, r); return; }
   const own = r != null && S.regions[r].owner === 'tide';
   if (tapSel != null) {                     // second tap: a colony sends, anywhere else just deselects
     if (r != null && r !== tapSel) orderTo([tapSel], w);
