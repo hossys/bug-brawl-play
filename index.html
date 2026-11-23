@@ -2982,7 +2982,9 @@ function renderStatic(G, m, box) {
     g.fillStyle = sea; g.fillRect(0, 0, W, H);
   }
   worldTf(g);
-  const R = G.regions, paths = R.map(r => r.path); if (G.map.sandPath) paths.push(G.map.sandPath);
+  // a capture repaints only its patch: skip every territory whose box (glow and cliff included) misses it
+  const near = r => { const q = regionBox(r); return q[0] < box[2] && q[2] > box[0] && q[1] < box[3] && q[3] > box[1]; };
+  const R = box ? G.regions.filter(near) : G.regions, paths = R.map(r => r.path); if (G.map.sandPath) paths.push(G.map.sandPath);
   g.lineJoin = 'round'; g.lineCap = 'round';
   g.strokeStyle = 'rgba(150,232,255,.38)'; g.lineWidth = 50; for (const p of paths) g.stroke(p);
   g.strokeStyle = 'rgba(215,248,255,.55)'; g.lineWidth = 26; for (const p of paths) g.stroke(p);
@@ -3018,8 +3020,9 @@ function renderStatic(G, m, box) {
     g.restore();
   }
   g.lineWidth = 2.6; g.strokeStyle = 'rgba(16,40,58,.26)'; for (const r of R) g.stroke(r.path);
-  for (const b of G.map.bridges) drawBridge(g, b);
-  for (const d of G.map.decor.slice().sort((a, b) => a.y - b.y)) drawDecor(g, d);
+  const inBox = (x, y, pad) => !box || (x > box[0] - pad && x < box[2] + pad && y > box[1] - pad && y < box[3] + pad);
+  for (const b of G.map.bridges) if (inBox(b.x0, b.y0, 140) || inBox(b.x1, b.y1, 140)) drawBridge(g, b);
+  for (const d of G.map.decor.slice().sort((a, b) => a.y - b.y)) if (inBox(d.x, d.y, 60)) drawDecor(g, d);
   g.restore();
 }
 function drawBridge(g, b) {
