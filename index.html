@@ -2529,14 +2529,6 @@ function drawBadge(g, r) {
   g.lineJoin = 'round'; g.lineWidth = 4.5; g.strokeStyle = 'rgba(16,40,58,.7)'; g.strokeText(n, 0, 1.5);
   g.fillStyle = '#fff'; g.fillText(n, 0, 1.5);
   g.restore();
-  const hp = hpOf(r);
-  if (hp > 1) {
-    g.save(); g.translate(r.x + 45, r.y - 4); g.scale(1.2, 1.2);
-    g.fillStyle = '#10283a'; g.beginPath(); g.moveTo(0, 8); g.bezierCurveTo(-11, 1, -9, -9, -2.6, -7); g.quadraticCurveTo(0, -6, 0, -4.4); g.quadraticCurveTo(0, -6, 2.6, -7); g.bezierCurveTo(9, -9, 11, 1, 0, 8); g.fill();
-    g.fillStyle = '#ff6b6b'; g.beginPath(); g.moveTo(0, 5.4); g.bezierCurveTo(-8, .4, -6.6, -6.4, -2.4, -5); g.quadraticCurveTo(0, -4, 0, -2.2); g.quadraticCurveTo(0, -4, 2.4, -5); g.bezierCurveTo(6.6, -6.4, 8, .4, 0, 5.4); g.fill();
-    g.fillStyle = '#fff'; g.font = `9px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(hp, 0, -.2);
-    g.restore();
-  }
 }
 
 // ---------- frame ----------
@@ -2556,8 +2548,8 @@ function frame(ts) {
 
 const TIPS = {
   pond: 'Mosquito pond taken! <b>Mosquitoes</b> fly over water and throw spears. Ants can\u2019t reach them.',
-  wasp: 'Wasp nest taken! A hornet hatches every 24 s. Tap <b>Hornet</b>, then a colony, to wipe out half its bugs.',
-  hive: 'Beehive taken! Bees throw stingers. Tap <b>Bee</b>, then one of your colonies, to post a guard bee.',
+  wasp: 'Wasp nest taken! A hornet hatches every 24 s. When the ring is full, tap <b>Hornet</b>, then an enemy colony.',
+  hive: 'Beehive taken! Bees throw stingers. When the ring is full, tap <b>Guard bee</b>, then one of your colonies.',
   beetle: 'Beetle stump taken! <b>Beetles</b> carry machine guns that hit flyers too. Slow to raise, hard to kill.',
   termite: 'Termite tower taken! <b>Termites</b> take twice the bites of an ant.',
 };
