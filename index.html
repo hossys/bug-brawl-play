@@ -985,7 +985,7 @@ const MAX_UNITS = 260, SIDE_CAP = 110, CHARGE_RADIUS = 45;
 const LEVEL_STEP = 0.05, MAX_BUG_LEVEL = 10;
 // Wind gusts: announced a few seconds ahead, then a short push. Bugs moving with it speed up, against it slow down,
 // and flyers get blown sideways. Level 1 (the tutorial) stays calm.
-const WIND = { from: 2, first: [26, 38], every: [32, 50], warn: 3, blow: 5, air: .5, ground: .2, drift: 18 };
+const WIND = { from: 2, first: [24, 34], every: [28, 44], warn: 3, blow: 8, air: .8, ground: .45, drift: 42, lane: 44 };   // v23.4: stronger, longer gusts
 // Terrain: whole territories of swamp, tall grass or rocks. Ground bugs walk slower there; flyers pass over.
 const TERRAIN = { from: 3, kinds: ['swamp', 'grass', 'rocks'], swamp: { slow: .6 }, grass: { slow: .8 }, rocks: { slow: .7 } };
 const upgradeCost = lvl => Math.round(100 * Math.pow(1.6, lvl - 1) / 10) * 10;   // price to go from lvl to lvl+1
@@ -1789,7 +1789,7 @@ function spread(S, dt) {
     const m = Math.hypot(u.px, u.py), cap = 2.2;
     if (m > cap) { u.px *= cap / m; u.py *= cap / m; }
     if (u.mode === 'march') {                   // keep marchers on their route: the push becomes a lane change
-      const nl = u.lane + (u.px * -u.diry + u.py * u.dirx), max = u.air ? 26 : (UNITS[u.kind].lane || 8) + 12;
+      const nl = u.lane + (u.px * -u.diry + u.py * u.dirx), max = u.air ? Math.max(26, Math.abs(u.lane)) : (UNITS[u.kind].lane || 8) + 12;   // a gust may have blown flyers wider
       u.lane = Math.max(-max, Math.min(max, nl));
       u.s = Math.max(0, u.s + Math.min(0, u.px * u.dirx + u.py * u.diry));
       placeMarch(u, S);
@@ -1822,7 +1822,7 @@ function stepWind(S, dt) {
     u.speed = base * (1 + W.w * (u.air ? WIND.air : WIND.ground) * Math.cos(u.ang - W.ang));
     if (!u.air) continue;
     const d = W.w * WIND.drift * dt;
-    if (u.mode === 'march') u.lane = Math.max(-26, Math.min(26, u.lane + (-Math.sin(u.ang) * wx + Math.cos(u.ang) * wy) * d));
+    if (u.mode === 'march') u.lane = Math.max(-WIND.lane, Math.min(WIND.lane, u.lane + (-Math.sin(u.ang) * wx + Math.cos(u.ang) * wy) * d));
     else { u.x = Math.max(8, Math.min(WORLD_W - 8, u.x + wx * d * .6)); u.y = Math.max(8, Math.min(WORLD_H - 8, u.y + wy * d * .6)); }
   }
 }
@@ -2565,7 +2565,7 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let DPR = 1, VW = 0, VH = 0, SC = 1, OX = 0, OY = 0, TOP = 0, BOTTOM = 0, mapDirty = true;
 let mode = 'menu', paused = false, S = null, levelIdx = 0, selLevel = 0;
 let drag = null, tapSel = null, aim = null, fx = [], parts = [], resultTimer = 0, lastHud = 0, shake = 0;
-const BUILD = 'v23.3';   // shown in Settings
+const BUILD = 'v23.4';   // shown in Settings
 const cam = { z: 1, px: 0, py: 0 };
 let camMovedAt = 0;
 const FONT = '"Titan One","Arial Rounded MT Bold","Trebuchet MS",sans-serif';
@@ -3725,6 +3725,11 @@ function stepZoom() {}
 const pointers = new Map();
 let pinch = null, lastTap = { t: 0, x: 0, y: 0 };
 function homeAt(w) { return homeHit(w, 46); }
+function ownNear(w, rad) {
+  let best = null, bd = rad * rad;
+  for (const r of S.regions) if (r.owner === 'tide') for (const [cx, cy] of [[r.x, r.y - 14], [r.x + 27, r.y + 12]]) { const dx = cx - w.x, dy = cy - w.y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = r.i; } }
+  return best;
+}
 // Bugs are only ever sent from colony to colony. Letting go anywhere else simply cancels.
 function orderTo(sources, w) {
   const to = regionAt(w);
@@ -3767,7 +3772,9 @@ cv.addEventListener('pointerdown', e => {
   e.preventDefault();
   if (pointers.size === 2) { drag = null; tapSel = null; pinch = { ...pinchState(), done: false }; return; }
   if (pointers.size > 2) return;
-  const w = toWorld(e), r = regionAt(w);
+  const w = toWorld(e); let r = regionAt(w);
+  // only your own colonies can send, so a press that lands just off one of yours (on a neighbour's edge) still picks yours
+  if (!aim && (r == null || S.regions[r].owner !== 'tide')) { const o = ownNear(w, 70); if (o != null) r = o; }
   drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, x: w.x, y: w.y, moved: false, sources: [], hover: r, r0: r, pan: false, cpx: cam.px, cpy: cam.py };
   const ownHere = !aim && r != null && S.regions[r].owner === 'tide';
   if (ownHere && (cam.z <= 1.01 || homeAt(w) === r)) drag.sources.push(r);   // zoomed in, own ground away from the home pans
