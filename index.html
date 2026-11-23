@@ -2565,7 +2565,7 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let DPR = 1, VW = 0, VH = 0, SC = 1, OX = 0, OY = 0, TOP = 0, BOTTOM = 0, mapDirty = true;
 let mode = 'menu', paused = false, S = null, levelIdx = 0, selLevel = 0;
 let drag = null, tapSel = null, aim = null, fx = [], parts = [], resultTimer = 0, lastHud = 0, shake = 0;
-const BUILD = 'v23.1';   // shown in Settings
+const BUILD = 'v23.2';   // shown in Settings
 const cam = { z: 1, px: 0, py: 0 };
 let camMovedAt = 0;
 const FONT = '"Titan One","Arial Rounded MT Bold","Trebuchet MS",sans-serif';
@@ -4233,7 +4233,8 @@ const Stats = (() => {
     log('session_start', { first, days: progress.firstSeen ? Math.floor((Date.now() - progress.firstSeen) / 864e5) : 0, from,
       app: fsMode() === 'app', w: innerWidth, h: VH, lang: navigator.language, played: (progress.stats && progress.stats.played) || 0 });
   }
-  addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { log('session_end', { secs: Math.round((Date.now() - t0) / 1000), matches }); flush(true); } });
+  let away = false;   // iOS can report "hidden" twice in a row; count one trip to the background once
+  addEventListener('visibilitychange', () => { const h = document.visibilityState === 'hidden'; if (h && !away) { log('session_end', { secs: Math.round((Date.now() - t0) / 1000), matches }); flush(true); } away = h; });
   return { log, flush, hello, match() { matches++; } };
 })();
 function answerConsent(yes) {
