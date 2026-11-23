@@ -731,8 +731,8 @@ html.tall body{position:fixed;top:0;left:0;width:100%;transform:translateZ(0)}
 .rs-pill b{position:absolute;left:42%;right:6%;top:50%;transform:translateY(-54%);text-align:center;font-family:var(--font-display);font-weight:400;
   font-size:17px;color:#fff;-webkit-text-stroke:1.5px #0d1d4a;paint-order:stroke fill;white-space:nowrap}
 .rs-btns{display:flex;gap:10px}
-.rs-btn{flex:1;aspect-ratio:460/197;border:0;padding:0 0 6%;background:var(--u_btn_green) center/100% 100% no-repeat;font-family:var(--font-display);
-  font-size:20px;line-height:1;color:#fff;-webkit-text-stroke:2px #1f5a0a;paint-order:stroke fill;cursor:pointer;-webkit-tap-highlight-color:transparent;
+.rs-btn{flex:1;min-width:0;aspect-ratio:460/197;border:0;padding:0 5% 2%;background:var(--u_btn_green) center/100% 100% no-repeat;font-family:var(--font-display);
+  font-size:18px;line-height:1;white-space:nowrap;color:#fff;-webkit-text-stroke:2px #1f5a0a;paint-order:stroke fill;cursor:pointer;-webkit-tap-highlight-color:transparent;
   transition:transform .08s}
 .rs-btn.red{background-image:var(--u_btn_red);-webkit-text-stroke-color:#6a0c14}
 .rs-btn:active{transform:scale(.95)}
@@ -772,6 +772,7 @@ html.tall body{position:fixed;top:0;left:0;width:100%;transform:translateZ(0)}
 .rd-mark b{position:absolute;left:34px;right:6px;top:50%;transform:translateY(-54%);text-align:center;font-family:var(--font-display);font-weight:400;
   font-size:15px;color:#fff;-webkit-text-stroke:1.5px #0d1d4a;paint-order:stroke fill}
 @media (prefers-reduced-motion:reduce){.rd-claim{animation:none}}
+.tgl span{text-align:left}
 </style>
 </head>
 <body>
@@ -858,7 +859,7 @@ html.tall body{position:fixed;top:0;left:0;width:100%;transform:translateZ(0)}
     <div class="prof-set">
       <button class="tgl" id="setSound" role="switch"><span>Sound</span><i></i></button>
       <button class="tgl" id="setVibe" role="switch"><span>Vibration</span><i></i></button>
-      <button class="tgl" id="setShare" role="switch"><span>Share anonymous play stats</span><i></i></button>
+      <button class="tgl" id="setShare" role="switch"><span>Share play stats</span><i></i></button>
       <button class="btn plain sk sk-blue sk-btn" id="setTips">Show tips again</button>
       <button class="btn plain sk sk-blue sk-btn" id="setFull">Play full screen</button>
     </div>
@@ -985,7 +986,7 @@ const MAX_UNITS = 260, SIDE_CAP = 110, CHARGE_RADIUS = 45;
 const LEVEL_STEP = 0.05, MAX_BUG_LEVEL = 10;
 // Wind gusts: announced a few seconds ahead, then a short push. Bugs moving with it speed up, against it slow down,
 // and flyers get blown sideways. Level 1 (the tutorial) stays calm.
-const WIND = { from: 2, first: [24, 34], every: [28, 44], warn: 3, blow: 8, air: .8, ground: .45, drift: 42, lane: 44 };   // v23.4: stronger, longer gusts
+const WIND = { from: 2, first: [24, 34], every: [28, 44], warn: 3, blow: 8, air: .8, ground: .6, drift: 42, lane: 44, gdrift: .3 };   // v23.5: ground bugs feel it too
 // Terrain: whole territories of swamp, tall grass or rocks. Ground bugs walk slower there; flyers pass over.
 const TERRAIN = { from: 3, kinds: ['swamp', 'grass', 'rocks'], swamp: { slow: .6 }, grass: { slow: .8 }, rocks: { slow: .7 } };
 const upgradeCost = lvl => Math.round(100 * Math.pow(1.6, lvl - 1) / 10) * 10;   // price to go from lvl to lvl+1
@@ -1820,7 +1821,10 @@ function stepWind(S, dt) {
     const base = UNITS[u.kind].speed * terrSlow(u.terr || 0);
     if (!W.w) { u.speed = base; continue; }
     u.speed = base * (1 + W.w * (u.air ? WIND.air : WIND.ground) * Math.cos(u.ang - W.ang));
-    if (!u.air) continue;
+    if (!u.air) {   // walkers lean a little across their road, never off it
+      if (u.mode === 'march') { const m = (UNITS[u.kind].lane || 8) + 12; u.lane = Math.max(-m, Math.min(m, u.lane + (-Math.sin(u.ang) * wx + Math.cos(u.ang) * wy) * W.w * WIND.drift * WIND.gdrift * dt)); }
+      continue;
+    }
     const d = W.w * WIND.drift * dt;
     if (u.mode === 'march') u.lane = Math.max(-WIND.lane, Math.min(WIND.lane, u.lane + (-Math.sin(u.ang) * wx + Math.cos(u.ang) * wy) * d));
     else { u.x = Math.max(8, Math.min(WORLD_W - 8, u.x + wx * d * .6)); u.y = Math.max(8, Math.min(WORLD_H - 8, u.y + wy * d * .6)); }
@@ -2565,7 +2569,7 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let DPR = 1, VW = 0, VH = 0, SC = 1, OX = 0, OY = 0, TOP = 0, BOTTOM = 0, mapDirty = true;
 let mode = 'menu', paused = false, S = null, levelIdx = 0, selLevel = 0;
 let drag = null, tapSel = null, aim = null, fx = [], parts = [], resultTimer = 0, lastHud = 0, shake = 0;
-const BUILD = 'v23.4';   // shown in Settings
+const BUILD = 'v23.5';   // shown in Settings
 const cam = { z: 1, px: 0, py: 0 };
 let camMovedAt = 0;
 const FONT = '"Titan One","Arial Rounded MT Bold","Trebuchet MS",sans-serif';
@@ -3343,6 +3347,25 @@ function draw() {
   g.fillStyle = 'rgba(16,40,20,.24)';
   g.beginPath(); for (const u of ground) { const w = u.kind === 'beetle' ? 10.5 : 8; g.moveTo(u.x + w + 1.5, u.y + 1.5); g.ellipse(u.x + 1.5, u.y + 1.5, w, 4.2, 0, 0, Math.PI * 2); } g.fill();
   ground.sort((a, b) => a.y - b.y);
+  // wind: a bug carried by the gust trails speed streaks; a walker pushing into it has dust blowing past
+  if (S.wind && S.wind.w > .05) {
+    const W = S.wind, wx = Math.cos(W.ang), wy = Math.sin(W.ang);
+    g.save(); g.lineCap = 'round'; g.lineWidth = 2.3; g.strokeStyle = '#fff';
+    for (const u of S.units) {
+      if (u.dead || u.foe) continue;
+      const k = u.speed / (UNITS[u.kind].speed * terrSlow(u.terr || 0)), cx = Math.cos(u.ang), cy = Math.sin(u.ang);
+      if (k > 1.12) {
+        const L = 8 + 18 * (k - 1), ph = (t * 4 + u.ph) % 1; g.globalAlpha = Math.min(1, (k - 1) * 2.2) * W.w * .9 * (1 - ph * .5);
+        for (const o of [-3.5, 3.5]) { const bx = u.x - cx * (9 + ph * 4) - cy * o, by = u.y - cy * (9 + ph * 4) + cx * o; seg(g, bx, by, bx - cx * L, by - cy * L); }
+      } else if (k < .85 && !u.air) {
+        for (let q = 0; q < 2; q++) {   // headwind: short gusts rushing at the bug's face
+          const ph = (t * 2.6 + u.ph + q * .5) % 1, o = q ? 3.5 : -3.5, d = 20 - ph * 14, bx = u.x + cx * d - cy * o, by = u.y + cy * d + cx * o;
+          g.globalAlpha = Math.min(1, (1 - k) * 2.4) * W.w * .85 * Math.sin(ph * Math.PI); seg(g, bx, by, bx + wx * 6, by + wy * 6);
+        }
+      }
+    }
+    g.restore();
+  }
   // sprites are placed with one setTransform each instead of save/translate/rotate/restore
   for (const u of ground) {
     const A = UNIT_ART[u.kind], moved = u._lx == null || Math.abs(u.x - u._lx) + Math.abs(u.y - u._ly) > .05;
