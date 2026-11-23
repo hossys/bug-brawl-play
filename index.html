@@ -2565,7 +2565,7 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let DPR = 1, VW = 0, VH = 0, SC = 1, OX = 0, OY = 0, TOP = 0, BOTTOM = 0, mapDirty = true;
 let mode = 'menu', paused = false, S = null, levelIdx = 0, selLevel = 0;
 let drag = null, tapSel = null, aim = null, fx = [], parts = [], resultTimer = 0, lastHud = 0, shake = 0;
-const BUILD = 'v23';   // shown in Settings
+const BUILD = 'v23.1';   // shown in Settings
 const cam = { z: 1, px: 0, py: 0 };
 let camMovedAt = 0;
 const FONT = '"Titan One","Arial Rounded MT Bold","Trebuchet MS",sans-serif';
@@ -3136,13 +3136,13 @@ let lastTs = 0, clock = 0, simAcc = 0;
 // The rules advance in fixed SIM_DT steps (same as the Node tests); drawing slides each bug between its last two
 // steps so motion stays smooth at 60 or 120 frames a second.
 function snapPositions() {
-  for (const u of S.units) { u.px = u.x; u.py = u.y; }
-  for (const d of S.guards) { d.px = d.x; d.py = d.y; }
+  for (const u of S.units) { u._ix = u.x; u._iy = u.y; }   // _ix/_iy: draw-only; the rules use px/py for body pushes
+  for (const d of S.guards) { d._ix = d.x; d._iy = d.y; }
 }
 function drawBetweenSteps(a) {
   if (!S || !(a > 0)) { draw(); return; }
   const moved = [];
-  for (const o of S.units.concat(S.guards)) if (o.px !== undefined) { moved.push(o, o.x, o.y); o.x = o.px + (o.x - o.px) * a; o.y = o.py + (o.y - o.py) * a; }
+  for (const o of S.units.concat(S.guards)) if (o._ix !== undefined) { moved.push(o, o.x, o.y); o.x = o._ix + (o.x - o._ix) * a; o.y = o._iy + (o.y - o._iy) * a; }
   const ps = S.projs, pt = ps.map(p => p.t);
   for (const p of ps) p.t = Math.min(p.dur, p.t + a * SIM_DT);
   try { draw(); } finally {
