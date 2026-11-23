@@ -590,6 +590,12 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .prof-colors button{width:40px;height:40px;border-radius:50%;padding:0;cursor:pointer;border:3px solid #fff;
   background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.55),transparent 45%),var(--c);box-shadow:0 0 0 2px rgba(122,42,20,.35),0 3px 0 rgba(0,0,0,.2)}
 .prof-colors button.on{box-shadow:0 0 0 3px #b5121f,0 0 12px rgba(255,210,74,.9);transform:scale(1.1)}
+/* bug cards: same rows in every card, upgrade button pinned to the bottom */
+.legend{align-items:stretch}
+.legend div.sk{justify-content:flex-start;height:100%}
+.legend b{display:flex;align-items:center;justify-content:center;min-height:2.3em;line-height:1.1;margin-top:2px}
+.legend em{display:flex;align-items:flex-start;justify-content:center;min-height:2.6em;line-height:1.3}
+.legend .up{margin-top:auto}
 /* splash with the logo */
 #splash{z-index:40;justify-content:center;gap:4vh;background:#2c4a22;isolation:isolate;cursor:pointer}
 #splash::before{content:"";position:absolute;inset:-30px;z-index:-1;background:var(--home-bg) center 62%/cover;filter:blur(3px) brightness(.8)}
